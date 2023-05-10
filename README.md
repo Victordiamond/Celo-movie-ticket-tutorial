@@ -13,6 +13,22 @@ We will also go through the concept of smart contracts and their benefits. Expla
 
 By following this tutorial, users will gain practical experience in developing a movie ticketing smart contract and understand the underlying concepts of blockchain-based systems.
 
+## Table of Contents
+
+- [Building a Movie Ticketing Smart Contract on the Celo Blockchain](#Building-a-Movie-Ticketing-Smart-Contract-on-the-Celo-Blockchain)
+  - [Introduction](#introduction)
+  - [Table of Contents](#table-of-contents)
+  - [Objective](#objective)
+  - [Prerequisites](#prerequisites)
+  - [Smart Contract Code](#Smart-Contract-Code)
+  - [How The Contract Works](#How-The-Contract-Works)
+  - [Deployment](#Deployment)
+  - [Conclusion](#conclusion)
+  - [Next Steps](#Next-Steps)
+
+## Objective
+The objective of this tutorial is to guide users through the process of building a movie ticketing smart contract using Solidity on the Celo blockchain. The tutorial aims to explain the benefits of smart contracts and how the movie ticketing smart contract leverages blockchain technology for secure and transparent ticket transactions. Additionally, the tutorial aims to provide practical experience in developing a movie ticketing smart contract and help users understand the underlying concepts of blockchain-based systems.
+
 ## Prerequisites
 
 Before getting started, ensure you have the following:
@@ -21,7 +37,7 @@ Before getting started, ensure you have the following:
 
 - A development environment like remix
 
-## SmartContract
+## Smart Contract Code
 
 Let's begin writing our smart contract in Remix IDE
 
