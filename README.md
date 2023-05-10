@@ -32,10 +32,28 @@ This is the complete code.
 
 pragma solidity >=0.7.0 <0.9.0;
 
+/**
+
+@title MovieTicketSale
+@dev This contract implements the functionality for buying and selling movie tickets using a cUSD token.
+The contract is Ownable, meaning only the contract owner can perform certain administrative functions.
+The contract uses the IERC20 interface to interact with the cUSD token.
+*/
+
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract Movietickets is Ownable {
+    /**    
+    @dev Function to add a new movie ticket to the marketplace.
+    @param _name The name of the movie.
+    @param _image The URL of the movie poster image.
+    @param _filmIndustry The name of the film industry producing the movie.
+    @param _genre The genre of the movie.
+    @param _description A brief description of the movie.
+    @param _price The price of one movie ticket in cUSD.
+    @param _ticketsAvailable The number of tickets that are available for purchase.
+    */
     struct Movieticket {
         address payable admin;
         string name;
@@ -83,6 +101,18 @@ contract Movietickets is Ownable {
         uint _price,
         uint _ticketsAvailable
     ) public onlyOwner {
+        require(bytes(_name).length > 0, "Name is required");
+        require(bytes(_image).length > 0, "Image is required");
+        require(bytes(_filmIndustry).length > 0, "Film industry is required");
+        require(bytes(_genre).length > 0, "Genre is required");
+        require(bytes(_description).length > 0, "Description is required");
+        require(_price > 0, "Price must be greater than zero");
+        require(_ticketsAvailable > 0, "Tickets available must be greater than zero");
+        // Check that movie with the same name does not already exist
+        for (uint i = 0; i < moviesLength; i++) {
+            require(keccak256(bytes(movies[i].name)) != keccak256(bytes(_name)), "Movie with same name already exists");
+        }
+
         uint _sold = 0;
         movies[moviesLength] = Movieticket(
             payable(msg.sender),
@@ -99,18 +129,35 @@ contract Movietickets is Ownable {
         moviesLength++;
     }
 
+        /**
+        * @dev Retrieves the details of a movie ticket by its index in the `movies` array.
+        *
+        * @param _index The index of the movie ticket to retrieve.
+        *
+        * @return admin The Ethereum address of the movie ticket's administrator.
+        * @return name The name of the movie associated with the ticket.
+        * @return image The IPFS hash of the image associated with the movie.
+        * @return filmIndustry The industry to which the movie belongs.
+        * @return genre The genre of the movie.
+        * @return description A description of the movie.
+        * @return price The price of the movie ticket.
+        * @return sold The number of tickets sold for the movie.
+        * @return ticketsAvailable The number of tickets still available for the movie.
+        * @return forSale A boolean indicating whether the movie ticket is currently for sale.
+        */
     function getMovieTicket(uint _index) public view returns (
-        address payable,
-        string memory,
-        string memory,
-        string memory,
-        string memory,
-        string memory,
-        uint,
-        uint,
-        uint,
-        bool
+        address payable admin,
+        string memory name,
+        string memory image,
+        string memory filmIndustry,
+        string memory genre,
+        string memory description,
+        uint price,
+        uint sold,
+        uint ticketsAvailable,
+        bool forSale
     ) {
+        require(_index < moviesLength, "Invalid index");
         Movieticket memory m = movies[_index];
         return (
             m.admin,
@@ -128,41 +175,48 @@ contract Movietickets is Ownable {
 
     function addTickets(uint _index, uint _tickets) external isAdmin(_index) {
         require(_tickets > 0, "Number of tickets must be greater than zero");
+        require(movies[_index].forSale, "Movie is not available for sale");
+    require(movies[_index].ticketsAvailable + _tickets <= movies[_index].ticketsAvailable, "Cannot exceed maximum tickets limit");
         movies[_index].ticketsAvailable += _tickets;
     }
 
     function changeForSale(uint _index) external isAdmin(_index) {
+        require(movies[_index].forSale == true || movies[_index].ticketsAvailable == 0, "Movie must have available tickets to be put on sale");
         movies[_index].forSale = !movies[_index].forSale;
     }
 
     function removeTicket(uint _index) external isAdmin(_index) {
+        require(_index < moviesLength, "Invalid index");
+    require(movies[_index].sold == 0, "Cannot remove ticket for a movie with sold tickets");
         movies[_index] = movies[moviesLength - 1];
         delete movies[moviesLength - 1];
         moviesLength--;
     }
 
     function blockTickets(uint _index, uint _tickets) external isAdmin(_index) isTicketAvailable(_index, _tickets) {
+        require(_tickets > 0, "Number of tickets must be greater than zero");
+        require(movies[_index].ticketsAvailable >= _tickets, "Insufficient tickets available");
         movies[_index].ticketsAvailable -= _tickets;
     }
 
-    function buyBulkMovieTicket(uint _index, uint _tickets
-) external payable isTicketForSale(_index) isTicketAvailable(_index, _tickets) {
-require(msg.sender != movies[_index].admin, "Admin cannot buy tickets");
-require(
-IERC20(cUsdTokenAddress).transferFrom(
-msg.sender,
-movies[_index].admin,
-movies[_index].price * _tickets
-),
-"Transfer failed."
-);    movies[_index].sold += _tickets;
-    movies[_index].ticketsAvailable -= _tickets;
-    userTickets[msg.sender][_index] += _tickets;
+    function buyBulkMovieTicket(uint _index, uint _tickets) 
+    external payable isTicketForSale(_index) isTicketAvailable(_index, _tickets) {
+        require(msg.sender != movies[_index].admin, "Admin cannot buy tickets");
+        require(
+        IERC20(cUsdTokenAddress).transferFrom(
+        msg.sender,
+        movies[_index].admin,
+        movies[_index].price * _tickets
+        ),
+        "Transfer failed."
+        );    movies[_index].sold += _tickets;
+            movies[_index].ticketsAvailable -= _tickets;
+            userTickets[msg.sender][_index] += _tickets;
 
-    totalRevenue += movies[_index].price * _tickets;
+            totalRevenue += movies[_index].price * _tickets;
 
-    emit TicketPurchase(msg.sender, _index, _tickets);
-}
+            emit TicketPurchase(msg.sender, _index, _tickets);
+    }
 
 function buyMovieTicket(uint _index) public payable isTicketForSale(_index) isTicketAvailable(_index, 1) {
     require(msg.sender != movies[_index].admin, "Admin cannot buy tickets");
@@ -174,6 +228,7 @@ function buyMovieTicket(uint _index) public payable isTicketForSale(_index) isTi
         ),
         "Transfer failed."
     );
+    require(userTickets[msg.sender][_index] <= movies[_index].ticketsAvailable, "User has exceeded ticket limit");
 
     movies[_index].sold += 1;
     movies[_index].ticketsAvailable -= 1;
@@ -187,6 +242,8 @@ function buyMovieTicket(uint _index) public payable isTicketForSale(_index) isTi
 function refundTickets(uint _index, uint _tickets) external {
     require(_tickets > 0, "Number of tickets must be greater than zero");
     require(userTickets[msg.sender][_index] >= _tickets, "Insufficient tickets for refund");
+     require(movies[_index].sold >= _tickets, "Tickets sold should be greater than refund tickets");
+
 
     uint refundAmount = movies[_index].price * _tickets;
 
@@ -213,6 +270,8 @@ function getTicketsLength() public view returns (uint) {
 }
 
 function getUserTickets(address _user, uint _index) public view returns (uint) {
+    require(_user != address(0), "Invalid user address");
+    require(_index < moviesLength, "Invalid movie index");
     return userTickets[_user][_index];
 }
 
@@ -220,6 +279,7 @@ function getTotalRevenue() public view returns (uint) {
     return totalRevenue;
 }
 }
+ 
  
 ```
 
