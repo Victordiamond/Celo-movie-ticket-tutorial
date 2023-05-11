@@ -1,29 +1,28 @@
 ---
-title: Building a Movie Ticketing Smart Contract on the Celo Blockchain
-description: This tutorial will teach you how to create a movie ticket on celo blockchain for cinemas booking
-authors:
-  - name: Ubah Victor
+Title: Building a Movie Ticketing Smart Contract on the Celo Blockchain
+Description: This tutorial will teach you how to create a Movie Ticketing on Celo Blockchain.
+Authors:
+  - Name: Ubah Victor
 ---
 
-## Introduction
+## Introduction:
 
-This tutorial guides you through the process of building a movie ticketing smart contract using Solidity on the Celo blockchain. The smart contract allows users to purchase movie tickets, manage ticket availability, and track revenue.
+This tutorial will guide you through the process of building a movie ticketing Smart Contract using [Solidity](https://docs.soliditylang.org/en/v0.8.20/) on the Celo blockchain. The Smart Contract allows users to purchase movie tickets, manage ticket availability and track revenue.
 
-We will also go through the concept of smart contracts and their benefits. Explain the purpose of the movie ticketing smart contract and how it leverages blockchain technology for secure and transparent ticket transactions.
+We will also go through the concept of Smart Contracts, their benefits, purpose of the movie ticketing Smart Contract and how it leverages blockchain technology for secure and transparent ticket transactions.
 
-By following this tutorial, users will gain practical experience in developing a movie ticketing smart contract and understand the underlying concepts of blockchain-based systems.
+By following this tutorial, users will gain practical experience in developing a movie ticketing Smart Contract and understand the underlying concepts of blockchain-based systems.
 
-## Prerequisites
+## Pre-requisites:
 
 Before getting started, ensure you have the following:
 
-- Basic understanding of Solidity and smart contracts.
+- Basic understanding of [Solidity](https://docs.soliditylang.org/en/v0.8.20/) and Smart Contracts.
+- [Remix](https://remix.ethereum.org/#lang=en&optimize=false&runs=200&evmVersion=null&version=soljson-v0.8.18+commit.87f61d96.js)
 
-- A development environment like remix
+## Smart Contract:
 
-## SmartContract
-
-Let's begin writing our smart contract in Remix IDE
+Let's begin writing our Smart Contract in Remix IDE
 
 This is the complete code.
 
@@ -223,7 +222,7 @@ function getTotalRevenue() public view returns (uint) {
  
 ```
 
-## How The Contract Works
+## How The Contract Works?
 
 Let's explain how the contract works!
 
@@ -273,7 +272,6 @@ mapping (address => mapping (uint => uint)) internal userTickets;
 uint internal totalRevenue = 0;
 
 ```
-
 In this code snippet, we define the `Movieticket` struct, which represents the attributes of a movie ticket. The struct contains the following fields:
 
 - `admin`: The address of the ticket administrator who manages the ticket sales.
@@ -295,10 +293,9 @@ We also declare several variables:
 - `userTickets`: A mapping that tracks the number of tickets purchased by each user for each movie.
 - `totalRevenue`: Tracks the total revenue generated from ticket sales.
 
-
 **Define Modifiers**
 
-We will define three modifiers to enforce access control and ensure ticket availability
+We will define three modifiers to enforce access control and ensure ticket availability:
 
 ```solidity
 modifier isTicketAvailable(uint _index, uint _tickets) {
@@ -318,11 +315,11 @@ modifier isAdmin(uint _index) {
 
 ```
 
--  `isTicketAvailable`: This modifier ensures that the requested number of tickets is available for purchase. It checks if the ticketsAvailable value for the given movie index is greater than or equal to the requested number of tickets.
+-  `isTicketAvailable`: This modifier ensures that the requested number of tickets is available for purchase. It checks if the `ticketsAvailable` value for the given movie index is greater than or equal to the requested number of tickets.
 
-- `isTicketForSale`: This modifier verifies that the movie tickets are currently available for sale. It checks the forSale flag for the given movie index.
+- `isTicketForSale`: This modifier verifies that the movie tickets are currently available for sale. It checks the `forSale` flag for the given movie index.
 
-- `isAdmin`: This modifier restricts certain operations to be performed only by the movie administrator. It verifies if the msg.sender (current caller) is the same as the admin address of the movie.
+- `isAdmin`: This modifier restricts certain operations to be performed only by the movie administrator. It verifies if the "msg.sender" (current caller) is the same as the admin address of the movie.
 
 **Add Movie**
 
@@ -449,7 +446,7 @@ function changeForSale(uint _index) external isAdmin(_index) {
 
 The `changeForSale` function allows the movie administrator to toggle the sale status of a movie ticket. It takes the movie index as a parameter.
 
-The function flips the value of the `forSale` flag for the specified movie index. If the ticket was previously for sale, it will be marked as not for sale, and vice versa.
+The function flips the value of the `forSale` flag for the specified movie index. If the ticket was previously for sale, it will be marked as not for sale and vice versa.
 
 **Remove Ticket**
 
@@ -509,6 +506,8 @@ totalRevenue += movies[_index].price * _tickets;
 
 emit TicketPurchase(msg.sender, _index, _tickets);
 }
+```
+
 The `buyBulkMovieTicket` function allows users to purchase multiple movie tickets at once. It takes the following parameters:
 - `_index`: The index of the movie for which tickets are to be purchased.
 - `_tickets`: The number of tickets to purchase.
@@ -546,7 +545,7 @@ The `buyMovieTicket` function allows users to purchase a single movie ticket. It
 
 The function verifies that the movie ticket is available for sale and that at least one ticket is available. It also ensures that the caller is not the movie administrator.
 
-Similar to the `buyBulkMovieTicket` function, it transfers the required amount of ERC20 tokens from the caller to the movie administrator using the `transferFrom` function. It updates the ticket sales and availability data, increments the user's ticket count, increases the total revenue, and emits a `TicketPurchase` event.
+Similar to the `buyBulkMovieTicket` function, it transfers the required amount of ERC20 tokens from the caller to the movie administrator using the `transferFrom` function. It updates the ticket sales and availability data, increments the user's ticket count, increases the total revenue and emits a `TicketPurchase` event.
 
 **Refund Tickets**
 
@@ -618,12 +617,11 @@ function getTotalRevenue() public view returns (uint) {
 }
 
 ```
-
 The `getTotalRevenue` function returns the total revenue generated by ticket sales in the contract.
 
-## Deployment
+## Deployment:
 
-To deploy our smart contract successfully, we need the celo extention wallet which can be downloaded from [here](https://chrome.google.com/webstore/detail/celoextensionwallet/kkilomkmpmkbdnfelcpgckmpcaemjcdh?hl=en)
+To deploy our Smart Contract successfully, we need the celo extention wallet which can be downloaded from [here](https://chrome.google.com/webstore/detail/celoextensionwallet/kkilomkmpmkbdnfelcpgckmpcaemjcdh?hl=en)
 
 Next, we need to fund our newly created wallet which can done using the celo alfojares faucet [Here](https://celo.org/developers/faucet)
 
@@ -633,11 +631,13 @@ Install the plugin and click on the celo logo which will show in the side tab af
 
 Next connect your celo wallet, select the contract you want to deploy and finally click on deploy to deploy your contract.
 
-## Conclusion
+Congratulations! You have successfully implemented a Movie Tickets Smart Contract using Solidity. The contract allows movie administrators to add movies, manage ticket availability, sell tickets to users, refund tickets and track revenue.
 
-Congratulations! You have successfully implemented a Movie Tickets smart contract using Solidity. The contract allows movie administrators to add movies, manage ticket availability, sell tickets to users, refund tickets, and track revenue
+## Conclusion:
 
-## Next Steps
+In summary, building a movie ticketing smart contract on the Celo blockchain is an example of how blockchain technology can be used to revolutionize traditional ticketing systems. The smart contract allows for transparency and trust in ticket sales, eliminates the need for intermediaries, and enables the transfer of ownership of tickets. The smart contract also incorporates the use of a stablecoin, cUSD, for payment, providing a stable and secure means of transaction. By utilizing blockchain technology, the movie ticketing process becomes more efficient, secure, and cost-effective for both moviegoers and theaters.
+
+## Next Steps:
 
 With us coming to the end of this tutorial, I hope you've learned on how to build a Movie Ticket Smart Contract on the Celo Blockchain. Here are some relevant links that would aid your learning further.
 
